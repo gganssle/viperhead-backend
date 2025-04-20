@@ -57,6 +57,34 @@ const client = google.accounts.oauth2.initTokenClient({
 client.requestAccessToken();
 ```
 
+### Testing the API
+
+A Python script is provided to test the API endpoints:
+
+1. First, ensure you have the required environment variables in your `.env` file:
+```bash
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+```
+
+2. Run the test script:
+```bash
+# Test against local server
+python scripts/test_api.py
+
+# Test against production server
+python scripts/test_api.py --api-url https://viperhead-server-862228002068.us-central1.run.app
+
+# Test with an existing token
+python scripts/test_api.py --token YOUR_GOOGLE_OAUTH_TOKEN
+```
+
+The script will:
+- Open a browser window for Google Sign-In (if no token is provided)
+- Test the root endpoint
+- Test the image generation endpoint with the obtained token
+- Display the results of each test
+
 ### Features
 - Dynamic prompt generation using configurable activities
 - Google OAuth authentication for API access
@@ -83,6 +111,7 @@ pip install -r requirements.txt
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
 ### Running the Server Locally
@@ -108,6 +137,7 @@ docker build -t viperhead-server .
 docker run -p 8080:8080 \
   -e OPENAI_API_KEY=your_openai_api_key_here \
   -e GOOGLE_CLIENT_ID=your_google_client_id_here \
+  -e GOOGLE_CLIENT_SECRET=your_google_client_secret_here \
   viperhead-server
 ```
 
@@ -147,7 +177,7 @@ gcloud run deploy viperhead-server \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars OPENAI_API_KEY=your_openai_api_key_here,GOOGLE_CLIENT_ID=your_google_client_id_here
+  --set-env-vars OPENAI_API_KEY=your_openai_api_key_here,GOOGLE_CLIENT_ID=your_google_client_id_here,GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
 ### Monitoring and Management
@@ -165,7 +195,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 3. Update environment variables:
 ```bash
 gcloud run services update viperhead-server \
-  --update-env-vars OPENAI_API_KEY=new_key_here,GOOGLE_CLIENT_ID=new_client_id_here
+  --update-env-vars OPENAI_API_KEY=new_key_here,GOOGLE_CLIENT_ID=new_client_id_here,GOOGLE_CLIENT_SECRET=new_client_secret_here
 ```
 
 ### Cost Management

@@ -10,7 +10,19 @@ import json
 load_dotenv()
 
 def get_google_token() -> str:
-    """Get a Google OAuth ID token by authenticating with Google"""
+    """Get a Google OAuth ID token by authenticating with Google.
+    
+    This function initiates an OAuth 2.0 flow that opens a browser window
+    for user authentication with Google. It uses the client credentials
+    from environment variables to set up the OAuth flow.
+    
+    Returns:
+        str: A Google OAuth ID token that can be used for API authentication
+        
+    Raises:
+        ValueError: If GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables are not set
+        Exception: If the OAuth flow fails or is interrupted
+    """
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     if not client_id:
@@ -47,14 +59,30 @@ def get_google_token() -> str:
     return creds.id_token
 
 def test_root(api_url: str):
-    """Test the root endpoint (no auth required)"""
+    """Test the root endpoint of the API.
+    
+    Args:
+        api_url (str): The base URL of the API to test
+        
+    Raises:
+        requests.RequestException: If the HTTP request fails
+    """
     print("\nTesting root endpoint...")
     response = requests.get(api_url)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
 
 def test_generate_image(api_url: str, id_token: str):
-    """Test the image generation endpoint (requires auth)"""
+    """Test the image generation endpoint of the API.
+    
+    Args:
+        api_url (str): The base URL of the API to test
+        id_token (str): A valid Google OAuth ID token for authentication
+        
+    Raises:
+        requests.RequestException: If the HTTP request fails
+        json.JSONDecodeError: If the response is not valid JSON
+    """
     print("\nTesting generate-image endpoint...")
     headers = {"Authorization": f"Bearer {id_token}"}
     response = requests.post(f"{api_url}/generate-image", headers=headers)
@@ -66,6 +94,16 @@ def test_generate_image(api_url: str, id_token: str):
         print(f"Error: {response.text}")
 
 def main():
+    """Main entry point for the API test script.
+    
+    This function parses command line arguments and orchestrates the testing
+    of both the root endpoint and the image generation endpoint. If no token
+    is provided, it initiates the OAuth flow to obtain one.
+    
+    Command line arguments:
+        --api-url: The base URL of the API (default: http://localhost:8000)
+        --token: Optional Google OAuth ID token
+    """
     parser = argparse.ArgumentParser(description="Test the Snake-headed Lab Generator API")
     parser.add_argument(
         "--api-url",
