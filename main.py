@@ -4,12 +4,14 @@ from fastapi.responses import JSONResponse
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from config.prompt_manager import PromptManager
 
 # Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client
+# Initialize OpenAI client and prompt manager
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+prompt_manager = PromptManager()
 
 app = FastAPI()
 
@@ -38,10 +40,6 @@ async def root():
 async def generate_image():
     """Generate an image of a snake-headed black lab using DALL-E 3.
 
-    The image will be a photorealistic black labrador retriever with its head 
-    replaced by a realistic snake head, maintaining the lab's body posture 
-    and proportions.
-
     Returns:
         JSONResponse: A JSON response containing the URL of the generated image
             {
@@ -54,9 +52,12 @@ async def generate_image():
             - detail: Error message from the OpenAI API
     """
     try:
+        # Generate the prompt using the prompt manager
+        prompt = prompt_manager.generate_prompt()
+        
         response = client.images.generate(
             model="dall-e-3",
-            prompt="A photorealistic black labrador retriever with its head replaced by a realistic snake head, maintaining the lab's body posture and proportions. The snake head should be seamlessly integrated, creating a surreal but cohesive hybrid creature.",
+            prompt=prompt,
             n=1,
             size="1024x1024",
             quality="standard"
